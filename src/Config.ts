@@ -6,4 +6,8 @@
  * https://marton.lederer.hu
  */
 
-export { Command, BaseCommand } from 'https://deno.land/x/cliffy@v0.9.0/command.ts'
+export default {
+
+  version: '0.0.2'
+
+}

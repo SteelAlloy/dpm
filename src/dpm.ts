@@ -7,6 +7,10 @@
  */
 
 import { Command } from '../deps.ts'
+import Config from './Config.ts'
+import { Color, Style } from './types.ts'
+import { InstallCommand } from './commands/InstallCommand.ts'
+import { InitCommand } from './commands/InitCommand.ts'
 
 export class DpmCommand extends Command {
 
@@ -15,14 +19,25 @@ export class DpmCommand extends Command {
     super()
 
     this.name('dpm')
-      .version('0.0.1')
+      .version(Config.version)
       .description('Deno Package Manager. A 3rd party package manager for Deno.')
-      .action((options, script: string, additionalArgs: string[]) => {
+      .action(() => {
 
-        console.log(options, script, additionalArgs)
-        console.log('test')
+        console.log(`
+          =========== dpm ===========
+          Deno Package Manager ${ Color.Purple }v${ Config.version }${ Style.Reset }
+          A 3rd party package manager for ${ Color.Yellow }Deno${ Style.Reset }.
+          developed by ${ Color.Cyan }Marton Lederer${ Style.Reset }
+          https://marton.lederer.hu
+          Packages source: https://deno.land/x/
+          Help: dpm help
+          ===========================
+        `)
 
       })
+      .command('install', new InstallCommand())
+      .command('i', new InstallCommand())
+      .command('init', new InitCommand())
       .reset()
 
   }
