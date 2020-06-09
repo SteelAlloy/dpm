@@ -14,8 +14,8 @@ export class InstallCommand extends BaseCommand {
 
     super()
 
-    this.description('Install a module')
-      .arguments('<module:modulename>')
+    this.description('Install a module from deno.land/x or the given url')
+      .arguments('<module:Module>')
       .useRawArgs()
       .action(async (options, module: string) => {
 

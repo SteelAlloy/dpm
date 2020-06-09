@@ -35,18 +35,24 @@ export class InitCommand extends BaseCommand {
         description: await this.listenForInput('Description'),
         version: await this.listenForInput('Version', '0.0.1'),
         author: await this.listenForInput('Author'),
+        scripts: {},
+        modules: {},
         git: await this.listenForInput('Git repository'),
         license: await this.listenForInput('License', 'ISC')
 
       },
       executeDir = Deno.cwd(),
       encoder = new TextEncoder(),
-      modsFile = await Deno.open(`${ executeDir }/mods.json`, { write: true, create: true })
+      modsFile = await Deno.open(`${ executeDir }/deps.json`, { write: true, create: true }),
+      gitignoreFile = await Deno.open(`${ executeDir }/.gitignore`, { write: true, create: true, append: true })
 
     try {
 
       await Deno.writeAll(modsFile, encoder.encode(JSON.stringify(projectData, null, 2)))
+      await Deno.writeAll(gitignoreFile, encoder.encode('\n# Deno modules\ndeno_modules/'))
       modsFile.close()
+      gitignoreFile.close()
+
       await Deno.mkdir(`${ executeDir }/deno_modules`)
 
       console.log(`${ Color.Green }Created Deno project${ Style.Reset }`)
