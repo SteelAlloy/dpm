@@ -100,3 +100,14 @@ export interface IModule {
   version: string
 
 }
+
+/*
+*
+* Helper object
+*
+* */
+export interface IObject {
+
+  [key: string]: any
+
+}

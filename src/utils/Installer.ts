@@ -6,7 +6,7 @@
  * https://marton.lederer.hu
  */
 
-import { Color, IModule, Style } from '../types.ts'
+import { Color, IModule, IObject, Style } from '../types.ts'
 
 export class Installer {
 
@@ -17,6 +17,26 @@ export class Installer {
 
     this.moduleName = moduleName
     this.depsDir = depsDir
+
+  }
+
+  async getRepoInfo (repo: string): Promise<IObject> {
+
+    return new Promise<IObject>(async resolve => {
+
+      resolve(await (await fetch(`https://api.github.com/repos/${ repo }`)).json())
+
+    })
+
+  }
+
+  async getReleasesForRepo (repo: string): Promise<IObject> {
+
+    return new Promise<IObject>(async resolve => {
+
+      resolve(await (await fetch(`https://api.github.com/repos/${ repo }/releases`)).json())
+
+    })
 
   }
 
@@ -56,7 +76,8 @@ export class Installer {
 
         const
           depsJSONFile = await Deno.open(`${ Deno.cwd() }/deps.json`, { read: true }),
-          depsTSFile = await Deno.open(`${ Deno.cwd() }/deno_modules/dpm.ts`, { write: true, read: true, append: true })
+          depsTSFile = await Deno.open(`${ Deno.cwd() }/deno_modules/dpm.ts`, { write: true, read: true, append: true }),
+          repoInfo = await this.getRepoInfo(cloneRepo)
 
         let
           depsJSON = JSON.parse(new TextDecoder().decode(await Deno.readAll(depsJSONFile))),
@@ -64,7 +85,7 @@ export class Installer {
 
             module: this.moduleName,
             //TODO version
-            version: '1.1.1'
+            version: 'master'
 
           }
 
@@ -82,6 +103,9 @@ export class Installer {
         depsJSONFile.close()
 
         await Deno.writeFile(`${ Deno.cwd() }/deps.json`, new TextEncoder().encode(JSON.stringify(depsJSON, null, 2)))
+        await Deno.writeAll(depsTSFile, new TextEncoder().encode(`\nexport * as ${ repoInfo['name'] } from './${ repoInfo['name'] }/mod.ts'`))
+
+        depsTSFile.close()
 
         resolve(true)
 
