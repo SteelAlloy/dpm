@@ -7,6 +7,9 @@
  */
 
 import { BaseCommand } from '../../deps.ts'
+import { Installer } from '../utils/Installer.ts'
+import { Color, Style } from '../types.ts'
+import Config from '../Config.ts'
 
 export class InstallCommand extends BaseCommand {
 
@@ -27,10 +30,15 @@ export class InstallCommand extends BaseCommand {
 
   async runCommand (module: string | undefined) {
 
+    console.log(`======== ${ Color.Cyan }dpm${ Style.Reset } v${ Config.version } ========`)
+
     switch (typeof module) {
 
       case 'string':
-        console.log(`Install ${ module }`)
+        const installer = new Installer(module, `${ Deno.cwd() }/deno_modules/`)
+
+        await installer.install()
+
         break
 
       case 'undefined':

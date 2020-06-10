@@ -8,5 +8,4 @@
 
 import { DpmCommand } from './src/dpm.ts'
 
-if(import.meta.main)
-  new DpmCommand().parse(Deno.args)
+new DpmCommand().parse(Deno.args)

@@ -1,10 +1,10 @@
 {
-  "name": "Project name",
-  "description": "Project description",
+  "name": "test",
+  "description": "test",
   "version": "0.0.1",
-  "author": "MartonDev",
+  "author": "marton",
   "scripts": {},
   "modules": {},
-  "git": "https://github.com/MartonDev/dpm",
+  "git": "",
   "license": "ISC"
 }
