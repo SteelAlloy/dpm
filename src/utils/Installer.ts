@@ -48,31 +48,40 @@ export class Installer {
 
   }
 
-  async addToDeps (): Promise<boolean> {
+  async addToDeps (cloneRepo: string): Promise<boolean> {
 
     return new Promise<boolean>(async resolve => {
 
       try {
 
         const
-          depsJSONFile = await Deno.open(`${ Deno.cwd() }/deps.json`, { write: true, read: true }),
-          depsTSFile = await Deno.open(`${ Deno.cwd() }/deno_modules/dpm.ts`, { write: true, read: true, append: true }),
-          depsJSONBuffer = new Uint8Array()
-
-        await Deno.read(depsJSONFile.rid, depsJSONBuffer)
+          depsJSONFile = await Deno.open(`${ Deno.cwd() }/deps.json`, { read: true }),
+          depsTSFile = await Deno.open(`${ Deno.cwd() }/deno_modules/dpm.ts`, { write: true, read: true, append: true })
 
         let
-          depsJSON = JSON.parse(new TextDecoder().decode(depsJSONBuffer)),
+          depsJSON = JSON.parse(new TextDecoder().decode(await Deno.readAll(depsJSONFile))),
           module: IModule = {
 
             module: this.moduleName,
+            //TODO version
             version: '1.1.1'
 
           }
 
-        depsJSON.modules.push(module)
+        //TODO version check
+        //if the version is higher than the already installed one, update the package
+        if(depsJSON.modules.find((module: IModule) => module.module === this.moduleName)) {
 
-        await Deno.writeAll(depsJSONFile, new TextEncoder().encode(JSON.stringify(depsJSON, null, 2)))
+          console.log(`\n${ Color.Red }Module already installed${ Style.Reset }`)
+          resolve(false)
+          return
+
+        }
+
+        depsJSON.modules.push(module)
+        depsJSONFile.close()
+
+        await Deno.writeFile(`${ Deno.cwd() }/deps.json`, new TextEncoder().encode(JSON.stringify(depsJSON, null, 2)))
 
         resolve(true)
 
@@ -105,7 +114,7 @@ export class Installer {
     if(cloneRepo === null) {
 
       console.log(`\n${ Color.Red }Error while installing: Module not found${ Style.Reset }`)
-      return
+      Deno.exit()
 
     }
 
@@ -113,17 +122,21 @@ export class Installer {
 
     const
       module = await fetch(`https://api.github.com/repos/${ cloneRepo }/contents/mod.ts`),
-      cloneTo = `${ this.depsDir }${ this.moduleName }`
+      cloneTo = `${ this.depsDir }${ this.moduleName }`,
+      addingToDepsWasSuccessful = await this.addToDeps(cloneRepo)
+
+    if(!addingToDepsWasSuccessful)
+      Deno.exit()
 
     if(module.status === 404) {
 
       console.log(`\n${ Color.Red }No mod.ts found at https://github.com/${ cloneRepo }/mod.ts\nmod.ts files are required, without a mod.ts the module is not supported by dpm${ Style.Reset }`)
-      return
+      Deno.exit()
 
     }else if(module.status !== 200) {
 
       console.log(`\n${ Color.Red }Something went wrong while requesting the module. Status code: ${ module.status }${ Style.Reset }`)
-      return
+      Deno.exit()
 
     }
 
@@ -136,8 +149,7 @@ export class Installer {
         cwd: this.depsDir
 
       }),
-      status = await cloneProcess.status(),
-      addingToDepsWasSuccessful = await this.addToDeps()
+      status = await cloneProcess.status()
 
     clearInterval(loadingAnimation)
 
