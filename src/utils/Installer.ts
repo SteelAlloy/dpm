@@ -20,25 +20,27 @@ export class Installer {
 
   }
 
-  async moduleURL (): Promise<string | null> {
+  async moduleRepo (): Promise<string | null> {
 
     return new Promise<string | null>(async resolve => {
 
-      if(this.moduleName.includes('http')) {
-
-        const moduleCheck = (await fetch(this.moduleName)).status
-
-        if(moduleCheck !== 200)
-          resolve(null)
-
-        resolve(this.moduleName)
-
-      }
+      if(this.moduleName.includes('http'))
+        resolve(null)
 
       const modules = await (await fetch('https://raw.githubusercontent.com/denoland/deno_website2/master/database.json')).json()
 
-      if(this.moduleName in modules)
-        resolve(`https://deno.land/x/${ this.moduleName }`)
+      if(this.moduleName in modules) {
+
+        if(modules[this.moduleName].type !== 'github') {
+
+          console.log(`${ Color.Red }Error while fetching: Module type is not github${ Style.Reset }`)
+          resolve(null)
+
+        }
+
+        resolve(`${ modules[this.moduleName].owner }/${ modules[this.moduleName].repo }`)
+
+      }
       else
         resolve(null)
 
@@ -50,31 +52,24 @@ export class Installer {
 
     console.log(`Installing ${ this.moduleName }...`)
 
-    const downloadFrom = await this.moduleURL()
+    const cloneRepo = await this.moduleRepo()
 
-    if(downloadFrom === null) {
+    if(cloneRepo === null) {
 
       console.log(`${ Color.Red }Error while installing: Module not found${ Style.Reset }`)
       return
 
     }
 
-    console.log(`Fetching from ${ downloadFrom }...`)
+    console.log(`Fetching from https://github.com/${ cloneRepo }...`)
 
-    const module = await fetch(`${ downloadFrom }/mod.ts`, {
-
-      method: 'GET',
-      headers: {
-
-        'Accept': 'text/typescript'
-
-      }
-
-    })
+    const
+      module = await fetch(`https://api.github.com/repos/${ cloneRepo }/contents/mod.ts`),
+      cloneTo = `${ this.depsDir }${ this.moduleName }`
 
     if(module.status === 404) {
 
-      console.log(`${ Color.Red }No mod.ts found at ${ downloadFrom }/mod.ts\nmod.ts files are required, without a mod.ts the module is not supported by dpm${ Style.Reset }`)
+      console.log(`${ Color.Red }No mod.ts found at https://github.com/${ cloneRepo }/mod.ts\nmod.ts files are required, without a mod.ts the module is not supported by dpm${ Style.Reset }`)
       return
 
     }else if(module.status !== 200) {
@@ -84,11 +79,16 @@ export class Installer {
 
     }
 
-    const moduleDir = `${ this.depsDir }${ this.moduleName }/`
+    console.log(`Installing to: ${ cloneTo }...`)
 
-    console.log(`Installing to: ${ moduleDir }`)
+    await Deno.run({
 
-    //console.log(await module.text())
+      cmd: ['git', 'clone', `https://github.com/${ cloneRepo }`],
+      cwd: this.depsDir
+
+    })
+
+    //console.log(['git', 'clone', `https://github.com/${ cloneRepo }`, `${ cloneTo }/`].join(' '))
 
   }
 
