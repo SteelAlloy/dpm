@@ -70,8 +70,8 @@ export interface IProject {
   description?: string
   version?: string
   author?: string
-  scripts?: IScripts
-  modules?: IModules
+  scripts?: Array<IScript>
+  modules?: Array<IModule>
   git?: string
   license?: string
 
@@ -82,9 +82,10 @@ export interface IProject {
 * Project config scripts
 *
 * */
-export interface IScripts {
+export interface IScript {
 
-  [key: string]: string
+  scriptName: string
+  script: string
 
 }
 
@@ -93,8 +94,9 @@ export interface IScripts {
 * Project config modules
 *
 * */
-export interface IModules {
+export interface IModule {
 
-  [key: string]: string
+  module: string
+  version: string
 
 }

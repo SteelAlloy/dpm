@@ -36,8 +36,8 @@ export class InitCommand extends BaseCommand {
         description: await this.listenForInput('Description'),
         version: await this.listenForInput('Version', '0.0.1'),
         author: await this.listenForInput('Author'),
-        scripts: {},
-        modules: {},
+        scripts: [],
+        modules: [],
         git: await this.listenForInput('Git repository'),
         license: await this.listenForInput('License', 'ISC')
 

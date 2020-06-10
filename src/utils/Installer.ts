@@ -6,7 +6,7 @@
  * https://marton.lederer.hu
  */
 
-import { Color, Style } from '../types.ts'
+import { Color, IModule, Style } from '../types.ts'
 
 export class Installer {
 
@@ -33,7 +33,7 @@ export class Installer {
 
         if(modules[this.moduleName].type !== 'github') {
 
-          console.log(`${ Color.Red }Error while fetching: Module type is not github${ Style.Reset }`)
+          console.log(`\n${ Color.Red }Error while fetching: Module type is not github${ Style.Reset }`)
           resolve(null)
 
         }
@@ -48,20 +48,68 @@ export class Installer {
 
   }
 
+  async addToDeps (): Promise<boolean> {
+
+    return new Promise<boolean>(async resolve => {
+
+      try {
+
+        const
+          depsJSONFile = await Deno.open(`${ Deno.cwd() }/deps.json`, { write: true, read: true }),
+          depsTSFile = await Deno.open(`${ Deno.cwd() }/deno_modules/dpm.ts`, { write: true, read: true, append: true }),
+          depsJSONBuffer = new Uint8Array()
+
+        await Deno.read(depsJSONFile.rid, depsJSONBuffer)
+
+        let
+          depsJSON = JSON.parse(new TextDecoder().decode(depsJSONBuffer)),
+          module: IModule = {
+
+            module: this.moduleName,
+            version: '1.1.1'
+
+          }
+
+        depsJSON.modules.push(module)
+
+        await Deno.writeAll(depsJSONFile, new TextEncoder().encode(JSON.stringify(depsJSON, null, 2)))
+
+        resolve(true)
+
+      }catch (e) {
+
+        console.log(`\n${ Color.Red }Error while adding to deps${ Style.Reset }`)
+        resolve(false)
+
+      }
+
+    })
+
+  }
+
   async install () {
 
-    console.log(`Installing ${ this.moduleName }...`)
+    let
+      currentLog = `Installing ${ this.moduleName }`,
+      loadingAnimationItems = ['\\', '|', '/', '-'],
+      i = 0,
+      loadingAnimation = setInterval(() => {
+
+        Deno.stdout.write(new TextEncoder().encode('\r' + loadingAnimationItems[i++] + currentLog))
+        i &= 3
+
+      }, 70)
 
     const cloneRepo = await this.moduleRepo()
 
     if(cloneRepo === null) {
 
-      console.log(`${ Color.Red }Error while installing: Module not found${ Style.Reset }`)
+      console.log(`\n${ Color.Red }Error while installing: Module not found${ Style.Reset }`)
       return
 
     }
 
-    console.log(`Fetching from https://github.com/${ cloneRepo }...`)
+    currentLog = `Fetching from https://github.com/${ cloneRepo }...`
 
     const
       module = await fetch(`https://api.github.com/repos/${ cloneRepo }/contents/mod.ts`),
@@ -69,26 +117,36 @@ export class Installer {
 
     if(module.status === 404) {
 
-      console.log(`${ Color.Red }No mod.ts found at https://github.com/${ cloneRepo }/mod.ts\nmod.ts files are required, without a mod.ts the module is not supported by dpm${ Style.Reset }`)
+      console.log(`\n${ Color.Red }No mod.ts found at https://github.com/${ cloneRepo }/mod.ts\nmod.ts files are required, without a mod.ts the module is not supported by dpm${ Style.Reset }`)
       return
 
     }else if(module.status !== 200) {
 
-      console.log(`${ Color.Red }Something went wrong while requesting the module. Status code: ${ module.status }${ Style.Reset }`)
+      console.log(`\n${ Color.Red }Something went wrong while requesting the module. Status code: ${ module.status }${ Style.Reset }`)
       return
 
     }
 
-    console.log(`Installing to: ${ cloneTo }...`)
+    currentLog = `Installing to: ${ cloneTo }...`
 
-    await Deno.run({
+    const
+      cloneProcess = await Deno.run({
 
-      cmd: ['git', 'clone', `https://github.com/${ cloneRepo }`],
-      cwd: this.depsDir
+        cmd: ['git', 'clone', `https://github.com/${ cloneRepo }`],
+        cwd: this.depsDir
 
-    })
+      }),
+      status = await cloneProcess.status(),
+      addingToDepsWasSuccessful = await this.addToDeps()
 
-    //console.log(['git', 'clone', `https://github.com/${ cloneRepo }`, `${ cloneTo }/`].join(' '))
+    clearInterval(loadingAnimation)
+
+    if(status.success)
+      console.log(`\n${ Color.Green }Installed module ${ this.moduleName }.${ Style.Reset }`)
+    else if(status.code === 128)
+      console.log(`\n${ Color.Red }Module is already installed, or the module repo is already cloned to deno_modules${ Style.Reset }`)
+    else
+      console.log(`\n${ Color.Red }Something went wrong when cloning the module. Code: ${ status.code }${ Style.Reset }`)
 
   }
 
