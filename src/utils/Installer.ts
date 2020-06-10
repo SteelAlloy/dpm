@@ -20,6 +20,13 @@ export class Installer {
 
   }
 
+  /*
+  *
+  * Getting repo info from github
+  *
+  * @param repo The repo
+  *
+  * */
   async getRepoInfo (repo: string): Promise<IObject> {
 
     return new Promise<IObject>(async resolve => {
@@ -30,6 +37,13 @@ export class Installer {
 
   }
 
+  /*
+  *
+  * Getting repo releases list from github
+  *
+  * @param repo The repo
+  *
+  * */
   async getReleasesForRepo (repo: string): Promise<IObject> {
 
     return new Promise<IObject>(async resolve => {
@@ -40,6 +54,11 @@ export class Installer {
 
   }
 
+  /*
+  *
+  * Getting the repo for the module from GitHub
+  *
+  * */
   async moduleRepo (): Promise<string | null> {
 
     return new Promise<string | null>(async resolve => {

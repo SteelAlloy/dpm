@@ -8,6 +8,10 @@
     {
       "module": "houston",
       "version": "master"
+    },
+    {
+      "module": "dpng",
+      "version": "master"
     }
   ],
   "git": "f",

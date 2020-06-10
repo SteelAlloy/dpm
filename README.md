@@ -13,6 +13,9 @@ deno install --allow-net --allow-read --allow-write --allow-run https://deno.lan
 
 ## Usage
 ### Create a project
+```ts
+dpm init
+```
 ### Installing modules
 Before installing, make sure the module has a `mod.ts` file where it exports all of it's required types, functions, etc. Modules without a `mod.ts` are not supported.
 
@@ -20,4 +23,19 @@ Before installing, make sure the module has a `mod.ts` file where it exports all
 dpm i <module_name>
 ```
 
-###### In the future, we might support modules without `deno.ts`. Please open an issue if you want to share your idea on an ideal implementation!
+###### In the future, we might support modules without `mod.ts`. Please open an issue if you want to share your idea on an ideal implementation!
+
+## TODO List
+- [ ] Add `deno i` without module arguments to install from `deps.json`
+- [ ] Add multiple module install support to `deno i`
+- [ ] Add version support for `deno i` based on github release tags
+- [ ] Add `deno r`/`deno remove` command
+- [ ] Add `deno update` command for updating modules to their latest version
+- [ ] Add `deno run` command for running scripts
+- [ ] Add optional `require('module-name')` function
+
+### V2
+Right now, dpm DPM is a simple package manager relying on the deno website repo's database.json file, to fetch modules. DPM v2 will be a standalone package manager, with it's own registry, based on github. This is a future plan, and I am not working on this at the moment.
+
+## Contributing
+Contributions are welcome, since this is a huge project with a lot to do. Please make a pull request, if you have something to share!
