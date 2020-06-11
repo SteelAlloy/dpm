@@ -12,11 +12,13 @@ export class Installer {
 
   private readonly moduleName: string
   private readonly depsDir: string
+  private readonly isAddToDeps: boolean
 
-  constructor (moduleName: string, depsDir: string) {
+  constructor (moduleName: string, depsDir: string, addToDeps: boolean) {
 
     this.moduleName = moduleName
     this.depsDir = depsDir
+    this.isAddToDeps = addToDeps
 
   }
 
@@ -87,6 +89,11 @@ export class Installer {
 
   }
 
+  /*
+  *
+  * Adding to dependency files
+  *
+  * */
   async addToDeps (cloneRepo: string): Promise<boolean> {
 
     return new Promise<boolean>(async resolve => {
@@ -104,13 +111,14 @@ export class Installer {
 
             module: this.moduleName,
             //TODO version
-            version: 'master'
+            version: 'master',
+            repo: cloneRepo
 
           }
 
         //TODO version check
         //if the version is higher than the already installed one, update the package
-        if(depsJSON.modules.find((module: IModule) => module.module === this.moduleName)) {
+        if(depsJSON.modules.find((module: IModule) => module.module === this.moduleName) && this.isAddToDeps) {
 
           console.log(`\n${ Color.Red }Module already installed${ Style.Reset }`)
           resolve(false)
@@ -121,7 +129,9 @@ export class Installer {
         depsJSON.modules.push(module)
         depsJSONFile.close()
 
-        await Deno.writeFile(`${ Deno.cwd() }/deps.json`, new TextEncoder().encode(JSON.stringify(depsJSON, null, 2)))
+        if(this.isAddToDeps)
+          await Deno.writeFile(`${ Deno.cwd() }/deps.json`, new TextEncoder().encode(JSON.stringify(depsJSON, null, 2)))
+
         await Deno.writeAll(depsTSFile, new TextEncoder().encode(`\nexport * as ${ repoInfo['name'] } from './${ repoInfo['name'] }/mod.ts'`))
 
         depsTSFile.close()

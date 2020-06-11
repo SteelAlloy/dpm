@@ -30,8 +30,8 @@ dpm i <module_name>
 ###### In the future, we might support modules without `mod.ts`. Please open an issue if you want to share your idea on an ideal implementation!
 
 ## TODO List
-- [ ] Add `deno i` without module arguments to install from `deps.json`
-- [ ] Add multiple module install support to `deno i`
+- [x] Add `deno i` without module arguments to install from `deps.json`
+- [x] Add multiple module install support to `deno i`
 - [ ] Add version support for `deno i` based on github release tags
 - [ ] Add `deno r`/`deno remove` command
 - [ ] Add `deno update` command for updating modules to their latest version

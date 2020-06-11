@@ -18,31 +18,48 @@ export class InstallCommand extends BaseCommand {
     super()
 
     this.description('Install a module from deno.land/x or the given url')
-      .arguments('<module:Module>')
-      .useRawArgs()
-      .action(async (options, module: string) => {
+      .arguments('[module...:string]')
+      .action(async (options, args) => {
 
-        await this.runCommand(module)
+        await this.runCommand(args)
 
       })
 
   }
 
-  async runCommand (module: string | undefined) {
+  async runCommand (modules: Array<string>) {
 
     console.log(`======== ${ Color.Cyan }dpm${ Style.Reset } v${ Config.version } ========`)
 
-    switch (typeof module) {
+    switch (typeof modules) {
 
-      case 'string':
-        const installer = new Installer(module, `${ Deno.cwd() }/deno_modules/`)
+      case 'object':
 
-        await installer.install()
+        for(const module in modules) {
+
+          const installer = new Installer(modules[module], `${ Deno.cwd() }/deno_modules/`, true)
+
+          await installer.install()
+
+        }
 
         break
 
       case 'undefined':
-        console.log('Installing via package file')
+
+        const
+          depsJSONFile = await Deno.open(`${ Deno.cwd() }/deps.json`, { read: true }),
+          depsJSON = JSON.parse(new TextDecoder().decode(await Deno.readAll(depsJSONFile))),
+          modulesToInstall = depsJSON.modules
+
+        for(const module in modulesToInstall) {
+
+          const installer = new Installer(modulesToInstall[module].module, `${ Deno.cwd() }/deno_modules/`, false)
+
+          await installer.install()
+
+        }
+
         break
 
       default:

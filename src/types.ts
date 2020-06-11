@@ -98,6 +98,7 @@ export interface IModule {
 
   module: string
   version: string
+  repo: string
 
 }
 

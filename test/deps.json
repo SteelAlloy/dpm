@@ -1,19 +1,16 @@
 {
-  "name": "test",
-  "description": "f",
-  "version": "f",
-  "author": "f",
+  "name": "Test",
+  "description": "A test environment",
+  "version": "0.0.1",
+  "author": "MartonDev",
   "scripts": [],
   "modules": [
     {
       "module": "houston",
-      "version": "master"
-    },
-    {
-      "module": "dpng",
-      "version": "master"
+      "version": "master",
+      "repo": "MartonDev/Houston"
     }
   ],
-  "git": "f",
-  "license": "f"
+  "git": "",
+  "license": "ISC"
 }
