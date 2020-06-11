@@ -1,6 +1,6 @@
 {
   "name": "Test",
-  "description": "A test environment",
+  "description": "Test project's description",
   "version": "0.0.1",
   "author": "MartonDev",
   "scripts": [],
@@ -12,5 +12,5 @@
     }
   ],
   "git": "",
-  "license": "ISC"
+  "license": "MIT"
 }

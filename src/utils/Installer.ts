@@ -91,6 +91,42 @@ export class Installer {
 
   /*
   *
+  * Adding to importmap
+  *
+  * */
+  async addToImportMap (cloneRepo: string): Promise<boolean> {
+
+    return new Promise<boolean>(async resolve => {
+
+      console.log(`Adding module to import map...`)
+
+      try {
+
+        const
+          importMapFile = await Deno.open(`${ Deno.cwd() }/deno_modules/import_map.json`, { read: true, write: true }),
+          importMap = JSON.parse(new TextDecoder().decode(await Deno.readAll(importMapFile))),
+          repoInfo = await this.getRepoInfo(cloneRepo)
+
+        importMap.imports[`${ this.moduleName }/`] = `file://${ Deno.cwd() }/deno_modules/${ repoInfo['name'] }/`
+        importMapFile.close()
+
+        await Deno.writeFile(`${ Deno.cwd() }/deno_modules/import_map.json`, new TextEncoder().encode(JSON.stringify(importMap, null, 2)))
+
+        resolve(true)
+
+      }catch (e) {
+
+        console.log(`\n${ Color.Red }Error while adding to import map\n${ e.message }${ Style.Reset }`)
+        resolve(false)
+
+      }
+
+    })
+
+  }
+
+  /*
+  *
   * Adding to dependency files
   *
   * */
@@ -100,10 +136,7 @@ export class Installer {
 
       try {
 
-        const
-          depsJSONFile = await Deno.open(`${ Deno.cwd() }/deps.json`, { read: true }),
-          depsTSFile = await Deno.open(`${ Deno.cwd() }/deno_modules/dpm.ts`, { write: true, read: true, append: true }),
-          repoInfo = await this.getRepoInfo(cloneRepo)
+        const depsJSONFile = await Deno.open(`${ Deno.cwd() }/deps.json`, { read: true })
 
         let
           depsJSON = JSON.parse(new TextDecoder().decode(await Deno.readAll(depsJSONFile))),
@@ -132,15 +165,11 @@ export class Installer {
         if(this.isAddToDeps)
           await Deno.writeFile(`${ Deno.cwd() }/deps.json`, new TextEncoder().encode(JSON.stringify(depsJSON, null, 2)))
 
-        await Deno.writeAll(depsTSFile, new TextEncoder().encode(`\nexport * as ${ repoInfo['name'] } from './${ repoInfo['name'] }/mod.ts'`))
-
-        depsTSFile.close()
-
         resolve(true)
 
       }catch (e) {
 
-        console.log(`\n${ Color.Red }Error while adding to deps${ Style.Reset }`)
+        console.log(`\n${ Color.Red }Error while adding to deps\n${ e.message }${ Style.Reset }`)
         resolve(false)
 
       }
@@ -174,24 +203,12 @@ export class Installer {
     currentLog = `Fetching from https://github.com/${ cloneRepo }...`
 
     const
-      module = await fetch(`https://api.github.com/repos/${ cloneRepo }/contents/mod.ts`),
       cloneTo = `${ this.depsDir }${ this.moduleName }`,
-      addingToDepsWasSuccessful = await this.addToDeps(cloneRepo)
+      addingToDepsWasSuccessful = await this.addToDeps(cloneRepo),
+      addingToImportMapWasSuccessful = await this.addToImportMap(cloneRepo)
 
-    if(!addingToDepsWasSuccessful)
+    if(!addingToDepsWasSuccessful || !addingToImportMapWasSuccessful)
       Deno.exit()
-
-    if(module.status === 404) {
-
-      console.log(`\n${ Color.Red }No mod.ts found at https://github.com/${ cloneRepo }/mod.ts\nmod.ts files are required, without a mod.ts the module is not supported by dpm${ Style.Reset }`)
-      Deno.exit()
-
-    }else if(module.status !== 200) {
-
-      console.log(`\n${ Color.Red }Something went wrong while requesting the module. Status code: ${ module.status }${ Style.Reset }`)
-      Deno.exit()
-
-    }
 
     currentLog = `Installing to: ${ cloneTo }...`
 

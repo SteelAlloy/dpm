@@ -52,6 +52,20 @@ export class InstallCommand extends BaseCommand {
           depsJSON = JSON.parse(new TextDecoder().decode(await Deno.readAll(depsJSONFile))),
           modulesToInstall = depsJSON.modules
 
+        try {
+
+          await Deno.mkdir(`${ Deno.cwd() }/deno_modules`)
+
+        } catch (e) {
+
+          console.log(`\ndeno_modules dir is already created`)
+
+        }
+
+        const importMapFile = await Deno.open(`${ Deno.cwd() }/deno_modules/import_map.json`, { write: true, create: true })
+        await Deno.writeAll(importMapFile, new TextEncoder().encode(JSON.stringify({ imports: {  } }, null, 2)))
+        importMapFile.close()
+
         for(const module in modulesToInstall) {
 
           const installer = new Installer(modulesToInstall[module].module, `${ Deno.cwd() }/deno_modules/`, false)

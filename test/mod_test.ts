@@ -5,6 +5,6 @@
  * https://github.com/MartonDev
  * https://marton.lederer.hu
  */
-import { Houston } from './deno_modules/dpm.ts'
+import { Houston } from 'houston/mod.ts'
 
 console.log(Houston)
