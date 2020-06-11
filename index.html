@@ -10,16 +10,44 @@
 
   <head>
 
-    <titl>DPM - Deno Package Manager</titl>
+    <title>DPM - Deno Package Manager</title>
+    <style>
+
+      * {
+
+        font-family: sans-serif;
+
+      }
+
+      pre {
+
+        font-family: monospace;
+
+      }
+
+    </style>
 
   </head>
 
   <body>
 
-    <h1>DPM</h1>
+    <h1>DPM [W.I.P.]</h1>
     <h2>Deno Package Manager</h2>
-    <p>This is the official site of DPM <a href="https://deno.land/x/dpm">Deno Package Manager</a></p>
-    <p>TODO: Make this page :)</p>
+    <p style="opacity: .8">This is the official site of DPM <a href="https://deno.land/x/dpm">Deno Package Manager</a></p>
+
+    <p style="opacity: .8">DPM or Deno Package Manager is an NPM like package manager for Deno. While Deno's original philosophy is to cache all of it's dependencies by downloading them via URLs, some people prefer the NodeJS way of importing modules. This project is for these savages (wink wink).</p>
+    <p style="opacity: .8">DPM downloads the desired package, when using <pre>dpm install modulename</pre> from deno.land/x and stores it within the deno_modules directory, while managing all your dependencies inside the deps.json file, in your project root.</p>
+
+    <h1>Installing</h1>
+    <span style="opacity: .8">Not recommended yet</span>
+    <pre style="opacity: .8">deno install --allow-net --allow-read --allow-write --allow-run https://deno.land/x/dpm/mod.ts</pre>
+
+    <h1>Create a project</h1>
+    <pre style="opacity: .8">dpm init</pre>
+
+    <h1>Installing modules</h1>
+    <pre style="opacity: .8">dpm i module_name</pre>
+    <span style="opacity: .8">In the future, we might support modules without mod.ts. Please open an issue if you want to share your idea on an ideal implementation!</span>
 
   </body>
 
