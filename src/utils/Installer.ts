@@ -155,6 +155,7 @@ export class Installer {
 
           console.log(`\n${ Color.Red }Module already installed${ Style.Reset }`)
           resolve(false)
+          Deno.exit()
           return
 
         }

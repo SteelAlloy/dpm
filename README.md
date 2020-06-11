@@ -90,6 +90,7 @@ More about import maps in the [Deno documentation](https://deno.land/manual/link
 - [ ] Add `deno run` command for running scripts
 - [x] Add support for modules without `mod.ts` file
 - [ ] Add optional `require('module-name')` function
+- [ ] Cleanup code
 - [ ] Add JavaScript support
 
 ### V2

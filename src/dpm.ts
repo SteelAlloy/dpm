@@ -11,6 +11,7 @@ import Config from './Config.ts'
 import { Color, Style } from './types.ts'
 import { InstallCommand } from './commands/InstallCommand.ts'
 import { InitCommand } from './commands/InitCommand.ts'
+import { UninstallCommand } from './commands/UninstallCommand.ts'
 
 export class DpmCommand extends Command {
 
@@ -38,6 +39,7 @@ export class DpmCommand extends Command {
       .command('install', new InstallCommand())
       .command('i', new InstallCommand())
       .command('init', new InitCommand())
+      .command('r', new UninstallCommand())
       .reset()
 
   }
