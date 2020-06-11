@@ -69,13 +69,15 @@ Remember to add the extra flags to get the import map working:
 deno run --importmap=import_map.json --unstable mod.ts
 ```
 
-### Why is this important for DPM?
+### Why is this important for DPM users?
 We use import maps, to provide an easy-import style for the users. **If you want to create your own script in `deps.json` or you want to run your project with `deno run`, you need to add the import map to it.**
 
 ###### Running with `deno run`
 ```shell script
 deno run --importmap=deno_modules/import_map.json --unstable mod.ts
 ```
+
+More about import maps in the [Deno documentation](https://deno.land/manual/linking_to_external_code/import_maps)
 
 ## TODO List
 - [x] Add `deno i` without module arguments to install from `deps.json`
